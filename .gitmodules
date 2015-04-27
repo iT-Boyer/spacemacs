@@ -22,3 +22,6 @@
 [submodule "spacemacs/extensions/yasnippet-snippets"]
 	path = spacemacs/extensions/yasnippet-snippets
 	url = http://github.com/AndreaCrotti/yasnippet-snippets.git
+[submodule "spacemacs-private"]
+	path = spacemacs-private
+	url = git@github.com:andyque/spacemacs-private.git
