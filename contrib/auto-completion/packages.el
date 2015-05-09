@@ -78,7 +78,7 @@ conflict.")
             company-clang-prefix-guesser 'company-mode/more-than-prefix-guesser))
     :config
     (progn
-      (spacemacs|diminish company-mode " ⓐ" " a")
+      ;; (spacemacs|diminish company-mode " ⓐ" " a")
       ;; Set the completion key
       (if auto-completion-use-tab-instead-of-enter
           (progn
