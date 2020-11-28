@@ -1,6 +1,6 @@
 ;;; packages.el --- Spacemacs Editing Layer packages File
 ;;
-;; Copyright (c) 2012-2018 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2020 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -14,6 +14,7 @@
         avy
         (bracketed-paste :toggle (version<= emacs-version "25.0.92"))
         (clean-aindent-mode :toggle dotspacemacs-use-clean-aindent-mode)
+        dired-quick-sort
         editorconfig
         eval-sexp-fu
         expand-region
@@ -24,13 +25,18 @@
         move-text
         (origami :toggle (eq 'origami dotspacemacs-folding-method))
         password-generator
+        (persistent-scratch :toggle dotspacemacs-scratch-buffer-persistent)
         pcre2el
         smartparens
         (evil-swap-keys :toggle dotspacemacs-swap-number-row)
         (spacemacs-whitespace-cleanup :location local)
         string-inflection
         undo-tree
+        (unkillable-scratch :toggle dotspacemacs-scratch-buffer-unkillable)
         uuidgen
+        (vimish-fold :toggle (eq 'vimish dotspacemacs-folding-method))
+        (evil-vimish-fold :toggle (eq 'vimish dotspacemacs-folding-method))
+        (evil-easymotion :toggle (memq dotspacemacs-editing-style '(vim, hybrid)))
         ws-butler))
 
 ;; Initialization of packages
@@ -94,6 +100,12 @@
     (progn
       (clean-aindent-mode)
       (add-hook 'prog-mode-hook 'spacemacs//put-clean-aindent-last t))))
+
+(defun spacemacs-editing/init-dired-quick-sort ()
+  (use-package dired-quick-sort
+    :defer t
+    :init
+    (dired-quick-sort-setup)))
 
 (defun spacemacs-editing/init-editorconfig ()
   (use-package editorconfig
@@ -275,6 +287,54 @@
 ;; Note: The key binding for the fold transient state is defined in
 ;; evil config
 
+(defun spacemacs-editing/init-vimish-fold ()
+  (use-package vimish-fold
+    :ensure
+    :after evil))
+
+(defun spacemacs-editing/init-evil-vimish-fold ()
+  (use-package evil-vimish-fold
+    :ensure
+    :after vimish-fold
+    :init
+    (setq evil-vimish-fold-target-modes '(prog-mode conf-mode text-mode))
+    :config (global-evil-vimish-fold-mode)))
+
+(defun spacemacs-editing/init-evil-easymotion ()
+  (use-package evil-easymotion
+    :defer t
+    :init
+    (defun buffer-evil-avy-goto-char-timer ()
+      "Call jump to the given chars use avy"
+      (interactive)
+      (let ((current-prefix-arg t))
+        (evil-avy-goto-char-timer)))
+
+    (evilem-default-keybindings "gs")
+    (define-key evilem-map "a" (evilem-create #'evil-forward-arg))
+    (define-key evilem-map "A" (evilem-create #'evil-backward-arg))
+    (define-key evilem-map "o" (evilem-create #'evil-jump-out-args))
+    (define-key evilem-map "s" #'evil-avy-goto-char-2)
+    (define-key evilem-map "/" #'evil-avy-goto-char-timer)
+    (define-key evilem-map (kbd "SPC") #'buffer-evil-avy-goto-char-timer)
+
+    ;; Provide proper prefixes for which key
+    (which-key-add-keymap-based-replacements evil-motion-state-map
+      "gs"  "evil-easymotion")
+    (which-key-add-keymap-based-replacements evilem-map
+      "g" "misc"
+      "[" "section backward"
+      "]" "section forward")
+
+    ;; Use evil-search backend, instead of isearch
+    (evilem-make-motion evilem-motion-search-next #'evil-ex-search-next
+                        :bind ((evil-ex-search-highlight-all nil)))
+    (evilem-make-motion evilem-motion-search-previous #'evil-ex-search-previous
+                        :bind ((evil-ex-search-highlight-all nil)))
+    (evilem-make-motion evilem-motion-search-word-forward #'evil-ex-search-word-forward
+                        :bind ((evil-ex-search-highlight-all nil)))
+    (evilem-make-motion evilem-motion-search-word-backward #'evil-ex-search-word-backward
+                        :bind ((evil-ex-search-highlight-all nil)))))
 
 (defun spacemacs-editing/init-password-generator ()
   (use-package password-generator
@@ -416,13 +476,16 @@
 (defun spacemacs-editing/init-undo-tree ()
   (use-package undo-tree
     :defer t
-    :init (setq undo-tree-visualizer-timestamps t
-                undo-tree-visualizer-diff t
-                ;; 10X bump of the undo limits to avoid issues with premature
-                ;; Emacs GC which truncages the undo history very aggresively
-                undo-limit 800000
-                undo-strong-limit 12000000
-                undo-outer-limit 120000000)
+    :init
+    (progn
+      (setq undo-tree-visualizer-timestamps t
+            undo-tree-visualizer-diff t
+            ;; 10X bump of the undo limits to avoid issues with premature
+            ;; Emacs GC which truncages the undo history very aggresively
+            undo-limit 800000
+            undo-strong-limit 12000000
+            undo-outer-limit 120000000)
+      (global-undo-tree-mode))
     :config
     (progn
       ;; restore diff window after quit.  TODO fix upstream
@@ -493,3 +556,22 @@
                                                                ("0" . ")"))))
         (_ (message "dotspacemacs-swap-number-row %s is not supported." dotspacemacs-swap-number-row)))
       (add-hook 'prog-mode-hook #'evil-swap-keys-swap-number-row))))
+
+(defun spacemacs-editing/init-persistent-scratch ()
+  (use-package persistent-scratch
+    :defer t
+    :init
+    (progn
+      (setq persistent-scratch-save-file (concat spacemacs-cache-directory ".persistent-scratch")
+            persistent-scratch-autosave-interval 60
+            persistent-scratch-what-to-save '(point narrowing))
+      (add-hook 'spacemacs-scratch-mode-hook 'persistent-scratch-mode)
+      (persistent-scratch-autosave-mode t))))
+
+(defun spacemacs-editing/init-unkillable-scratch ()
+  (use-package unkillable-scratch
+    :defer t
+    :init
+    (progn
+      (setq unkillable-scratch-do-not-reset-scratch-buffer t)
+      (unkillable-scratch dotspacemacs-scratch-buffer-unkillable))))
