@@ -62,7 +62,7 @@ under the derived mode t prefix by =(spacemacs/lsp-bind-keys-for-mode mode)=
 
 | Variable name                        | Default                              | Description                                                                                                     |
 |--------------------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------|
-| =lsp-headerline-breadcrumb-enable=   | nil                                  | When non-nil, shows breadcrumb on headerline.                                                                   |
+| =lsp-headerline-breadcrumb-enable=   | t                                    | When non-nil, shows breadcrumb on headerline.                                                                   |
 | =lsp-headerline-breadcrumb-segments= | `'(path-up-to-project file symbols)' | Display the path to the root of project, the name of the current file, and also its symbols. See details below. |
 | =lsp-lens-enable=                    | nil                                  | When non-nil, shows code lens when it's supported.                                                              |
 | =lsp-modeline-diagnostics-enable=    | t                                    | When non-nil, shows error diagnostics in modeline.                                                              |
@@ -85,7 +85,7 @@ To always display code lens,
 
 #+BEGIN_SRC emacs-lisp
   (setq-default dotspacemacs-configuration-layers
-                '((lsp :variables lsp-lens-enable nil)))
+                '((lsp :variables lsp-lens-enable t)))
 #+END_SRC
 
 This doesn't have any effect when code lens is not supported by current language server.
@@ -156,6 +156,9 @@ To display the current project, current file, and document symbols,
   (setq-default dotspacemacs-configuration-layers
                 '((lsp :variables lsp-headerline-breadcrumb-segments '(project file symbols))))
 #+END_SRC
+
+You may need to run ~all-the-icons-install-fonts~ if you have ~all-the-icons~ package installed,
+otherwise separators used by ~lsp-headerline-breadcrumb-mode~ will be garbled due to fonts missing.
 
 * Key bindings
 A number of lsp features useful for all/most modes have been bound to the lsp minor mode, meaning they'll be

@@ -85,6 +85,9 @@
         (global-set-key (kbd "M-x") 'spacemacs/helm-M-x-fuzzy-matching))
       (global-set-key (kbd "C-x C-f") 'spacemacs/helm-find-files)
       (global-set-key (kbd "C-x b") 'helm-buffers-list)
+      ;; use helm to switch last(/previous) visited buffers with C(-S)-tab
+      (evil-global-set-key 'motion (kbd "<C-tab>") 'helm-buffers-list)
+      (evil-global-set-key 'motion (kbd "<C-iso-lefttab>") 'helm-buffers-list)
       ;; use helm everywhere
       (spacemacs||set-helm-key "<f1>" helm-apropos)
       (spacemacs||set-helm-key "a'"   helm-available-repls)
@@ -161,13 +164,17 @@
       (advice-add 'helm-grep-save-results-1 :after 'spacemacs//gne-init-helm-grep)
       ;; helm-locate uses es (from everything on windows which doesn't like fuzzy)
       (helm-locate-set-command)
-      (setq helm-locate-fuzzy-match (and helm-use-fuzzy (string-match "locate" helm-locate-command)))
+      (setq helm-locate-fuzzy-match (and (bound-and-true-p helm-use-fuzzy)
+                                         (string-match "locate" helm-locate-command)))
       (setq helm-boring-buffer-regexp-list
             (append helm-boring-buffer-regexp-list
                     spacemacs-useless-buffers-regexp))
       (setq helm-white-buffer-regexp-list
             (append helm-white-buffer-regexp-list
                     spacemacs-useful-buffers-regexp))
+      ;; use helm to switch last(/previous) visited buffers with C(-S)-tab
+      (define-key helm-map (kbd "<C-tab>") 'helm-follow-action-forward)
+      (define-key helm-map (kbd "<C-iso-lefttab>") 'helm-follow-action-backward)
       ;; alter helm-bookmark key bindings to be simpler
       (defun simpler-helm-bookmark-keybindings ()
         (define-key helm-bookmark-map (kbd "C-d") 'helm-bookmark-run-delete)

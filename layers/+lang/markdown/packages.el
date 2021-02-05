@@ -9,19 +9,19 @@
 ;;
 ;;; License: GPLv3
 
-(setq markdown-packages
-      '(
-        company
-        company-emoji
-        emoji-cheat-sheet-plus
-        gh-md
-        markdown-mode
-        markdown-toc
-        mmm-mode
-        org
-        smartparens
-        (vmd-mode :toggle (eq 'vmd markdown-live-preview-engine))
-        ))
+(defconst markdown-packages
+  '(
+    company
+    company-emoji
+    emoji-cheat-sheet-plus
+    gh-md
+    markdown-mode
+    markdown-toc
+    mmm-mode
+    org
+    smartparens
+    valign
+    (vmd-mode :toggle (eq 'vmd markdown-live-preview-engine))))
 
 (defun markdown/post-init-company ()
   (dolist (mode markdown--key-bindings-modes)
@@ -46,6 +46,9 @@
       (spacemacs/set-leader-keys-for-major-mode mode
         "cr" 'gh-md-render-buffer))))
 
+(defun markdown/post-init-valign ()
+  (add-hook 'markdown-mode-hook 'valign-mode))
+
 (defun markdown/post-init-smartparens ()
   (add-hook 'markdown-mode-hook 'smartparens-mode))
 
@@ -58,6 +61,22 @@
     :defer t
     :config
     (progn
+      ;; Make markdown-mode behave a bit more like org w.r.t. code blocks i.e.
+      ;; use proper syntax highlighting
+      (setq markdown-fontify-code-blocks-natively t)
+
+      ;; set the markdown-command
+      (setq markdown-command
+            (if-let ((command (cl-loop for cmd in (if markdown-executable
+                                                      (list markdown-executable)
+                                                    (list "markdown" "pandoc" "markdown_py"))
+                                       when (executable-find cmd)
+                                       return (file-name-nondirectory it))))
+                command
+              (user-error (if markdown-executable
+                              (format "Cannot find markdown-executable %s" markdown-executable)
+                            "Please refer to the layer documentation and install a markdown command"))))
+
       ;; Declare prefixes and bind keys
       (dolist (prefix '(("mc" . "markdown/command")
                         ("mh" . "markdown/header")
@@ -161,7 +180,7 @@
         "gl" 'outline-next-visible-heading)
       ;; Promotion, Demotion
       (add-hook 'spacemacs-editing-style-hook
-         'spacemacs//markdown-hjkl-promotion-demotion)
+                'spacemacs//markdown-hjkl-promotion-demotion)
       (spacemacs//markdown-hjkl-promotion-demotion dotspacemacs-editing-style)
       (define-key markdown-mode-map (kbd "M-<down>") 'markdown-move-down)
       (define-key markdown-mode-map (kbd "M-<left>") 'markdown-promote)
