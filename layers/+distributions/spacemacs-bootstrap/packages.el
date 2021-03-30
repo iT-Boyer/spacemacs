@@ -1,13 +1,25 @@
 ;;; packages.el --- Mandatory Bootstrap Layer packages File
 ;;
-;; Copyright (c) 2012-2020 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
-;;; License: GPLv3
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 (setq spacemacs-bootstrap-packages
       '(
@@ -29,6 +41,7 @@
         (holy-mode :location local :step pre)
         (hybrid-mode :location (recipe :fetcher local) :step pre)
         (spacemacs-theme :location built-in)
+        dash
         ))
 
 
@@ -69,7 +82,8 @@
   (require 'evil)
   (evil-mode 1)
 
-  (when (configuration-layer/package-used-p 'undo-tree)
+  (when (and (fboundp 'evil-set-undo-system)
+             (configuration-layer/package-used-p 'undo-tree))
     (evil-set-undo-system 'undo-tree))
 
   ;; Use evil as a default jump handler
@@ -130,8 +144,8 @@
 
   ;; move selection up and down
   (when vim-style-visual-line-move-text
-    (define-key evil-visual-state-map "J" (concat ":m '>+1" (kbd "RET") "gv=gv"))
-    (define-key evil-visual-state-map "K" (concat ":m '<-2" (kbd "RET") "gv=gv")))
+    (define-key evil-visual-state-map "J" 'drag-stuff-down)
+    (define-key evil-visual-state-map "K" 'drag-stuff-up))
 
   (evil-ex-define-cmd "enew" 'spacemacs/new-empty-buffer)
 
@@ -590,9 +604,13 @@ Press \\[which-key-toggle-persistent] to hide."
         (spacemacs|add-toggle holy-mode
           :status holy-mode
           :on (progn (when (bound-and-true-p hybrid-mode)
-                       (hybrid-mode -1))
-                     (holy-mode))
-          :off (holy-mode -1)
+                       (hybrid-mode -1)
+                       (spacemacs/declare-prefix "tEh" "hybrid (hybrid-mode)"))
+                     (holy-mode)
+                     (spacemacs/declare-prefix "tEe" "vim (evil-mode"))
+          :off (progn (holy-mode -1)
+                      (spacemacs/declare-prefix "tEe" "emacs (holy-mode)"))
+          :off-message "evil-mode enabled."
           :documentation "Globally toggle holy mode."
           :evil-leader "tEe")
         (spacemacs|diminish holy-mode " Ⓔe" " Ee")))))
@@ -606,13 +624,21 @@ Press \\[which-key-toggle-persistent] to hide."
         (spacemacs|add-toggle hybrid-mode
           :status hybrid-mode
           :on (progn (when (bound-and-true-p holy-mode)
-                       (holy-mode -1))
-                     (hybrid-mode))
-          :off (hybrid-mode -1)
+                       (holy-mode -1)
+                       (spacemacs/declare-prefix "tEe" "emacs (holy-mode)"))
+                     (hybrid-mode)
+                     (spacemacs/declare-prefix "tEh" "vim (evil-mode)"))
+          :off (progn (hybrid-mode -1)
+                      (spacemacs/declare-prefix "tEh" "hybrid (hybrid-mode)"))
+          :off-message "evil-mode enabled."
           :documentation "Globally toggle hybrid mode."
           :evil-leader "tEh")
         (spacemacs|diminish hybrid-mode " Ⓔh" " Eh")))))
 
 (defun spacemacs-bootstrap/init-spacemacs-theme ()
   (use-package spacemacs-theme
+    :defer t))
+
+(defun spacemacs-bootstrap/init-dash ()
+  (use-package dash
     :defer t))

@@ -23,6 +23,7 @@
       - [[#declaration][Declaration]]
       - [[#initialization][Initialization]]
       - [[#exclusion][Exclusion]]
+      - [[#overriding-a-layer-package][Overriding a layer package]]
     - [[#without-a-layer][Without a layer]]
   - [[#packages-synchronization][Packages synchronization]]
   - [[#types-of-configuration-layers][Types of configuration layers]]
@@ -168,6 +169,7 @@
       - [[#paste-transient-state][Paste transient state]]
       - [[#auto-indent-pasted-text][Auto-indent pasted text]]
     - [[#text-manipulation-commands][Text manipulation commands]]
+      - [[#drag-stuff-transient-state][Drag stuff transient state]]
     - [[#text-insertion-commands][Text insertion commands]]
     - [[#smartparens-strict-mode][Smartparens Strict mode]]
     - [[#zooming][Zooming]]
@@ -433,6 +435,9 @@ Example:
 #+BEGIN_SRC emacs-lisp
   (setq <layer>-excluded-packages '(package1 package2 ...)
 #+END_SRC
+
+**** Overriding a layer package
+See [[https://www.spacemacs.org/doc/FAQ.html#how-to-override-a-layer-package][this answer in the FAQ's]].
 
 *** Without a layer
 Sometimes a layer can be an unnecessary overhead, this is the case if you just
@@ -2970,6 +2975,7 @@ Text related commands (start with ~x~):
 
 | Key binding   | Description                                                   |
 |---------------+---------------------------------------------------------------|
+| ~SPC x .~     | enter the drag stuff transient state                          |
 | ~SPC x TAB~   | indent or dedent a region rigidly                             |
 | ~SPC x a &~   | align region at &                                             |
 | ~SPC x a (~   | align region at (                                             |
@@ -2990,10 +2996,12 @@ Text related commands (start with ~x~):
 | ~SPC x a r~   | align region using user-specified regexp                      |
 | ~SPC x a m~   | align region at arithmetic operators (+-*/)                   |
 | ~SPC x a ¦~   | align region at ¦                                             |
+| ~SPC x A~     | Open all visible links                                        |
 | ~SPC x c~     | count the number of chars/words/lines in the selection region |
 | ~SPC x d l~   | delete blank lines but one or the single blank line           |
 | ~SPC x d w~   | delete trailing whitespaces                                   |
 | ~SPC x d SPC~ | Delete all spaces and tabs around point, leaving one space    |
+| ~SPC x e~     | Edit strings in place                                         |
 | ~SPC x g l~   | set languages used by translate commands                      |
 | ~SPC x g t~   | translate current word using Google Translate                 |
 | ~SPC x g T~   | reverse source and target languages                           |
@@ -3010,8 +3018,8 @@ Text related commands (start with ~x~):
 | ~SPC x j l~   | set the justification to left                                 |
 | ~SPC x j n~   | set the justification to none                                 |
 | ~SPC x j r~   | set the justification to right                                |
-| ~SPC x J~     | move down a line of text (enter transient state)              |
-| ~SPC x K~     | move up a line of text (enter transient state)                |
+| ~SPC x J~     | drag down a line of text (enter drag stuff transient state)   |
+| ~SPC x K~     | drag up a line of text (enter drag stuff transient state)     |
 | ~SPC x l d~   | duplicate line or region                                      |
 | ~SPC x l r~   | randomize lines in region                                     |
 | ~SPC x l s~   | sort lines                                                    |
@@ -3030,6 +3038,18 @@ Text related commands (start with ~x~):
 | ~SPC x w d~   | show dictionary entry of word from wordnik.com                |
 | ~SPC x w r~   | randomize words in region                                     |
 | ~SPC x y~     | use avy to copy a link in the frame                           |
+| ~SPC x Y~     | use avy to copy multiple links in the frame                   |
+
+**** Drag stuff transient state
+The drag stuff transient state is opened with ~SPC x .~:
+
+| Key binding       | Description                 |
+|-------------------+-----------------------------|
+| ~k~, ~K~, ~Up~    | drag up                     |
+| ~j~, ~J~, ~Down~  | drag down                   |
+| ~h~, ~H~, ~Left~  | drag left (word or region)  |
+| ~l~, ~L~, ~Right~ | drag right (word or region) |
+| ~q~               | quit transient state        |
 
 *** Text insertion commands
 Text insertion commands (start with ~i~):

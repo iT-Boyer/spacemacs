@@ -1,13 +1,25 @@
 ;;; packages.el --- Ivy Layer packages File
 ;;
-;; Copyright (c) 2012-2020 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
-;;; License: GPLv3
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 (setq ivy-packages
       '(
@@ -254,6 +266,11 @@
       (spacemacs/set-leader-keys-for-major-mode 'ivy-occur-grep-mode
         "w" 'spacemacs/ivy-wgrep-change-to-wgrep-mode
         "s" 'wgrep-save-all-buffers)
+
+      ;; emacs 27 extend line for ivy highlight
+      (setf (alist-get 't ivy-format-functions-alist)
+            #'ivy-format-function-line)
+
       ;; Why do we do this ?
       (ido-mode -1)
 
@@ -281,7 +298,8 @@
             ivy-virtual-abbreviate 'full))
     :config
     (progn
-      (ivy-rich-mode))))
+      (ivy-rich-mode)
+      (ivy-rich-project-root-cache-mode))))
 
 (defun ivy/init-ivy-spacemacs-help ()
   (use-package ivy-spacemacs-help

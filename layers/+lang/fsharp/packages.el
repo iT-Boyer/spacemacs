@@ -1,18 +1,31 @@
 ;;; packages.el --- F# Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2020 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
-;;; License: GPLv3
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 (defconst fsharp-packages
   '(
     company
     counsel-gtags
+    (eglot-fsharp :toggle (eq (spacemacs//fsharp-backend) 'eglot))
     flycheck
     fsharp-mode
     ggtags
@@ -25,15 +38,23 @@
 (defun fsharp/post-init-flycheck ()
   (spacemacs/enable-flycheck 'fsharp-mode))
 
+(defun fsharp/init-eglot-fsharp ()
+  (use-package eglot-fsharp
+    :defer t
+    :init
+    (progn
+      (require 'f)
+      (setq eglot-fsharp-server-install-dir
+            (expand-file-name
+             (locate-user-emacs-file (f-join ".cache" "eglot")))))))
+
 (defun fsharp/init-fsharp-mode ()
   (use-package fsharp-mode
     :defer t
     :init
     (progn
-      (unless (eq (spacemacs//fsharp-backend) 'lsp)
+      (when (eq (spacemacs//fsharp-backend) 'eglot)
         (require 'eglot-fsharp))
-      (setq eglot-fsharp-server-install-dir (expand-file-name
-                                             (locate-user-emacs-file (f-join ".cache" "eglot"))))
       (setq fsharp-doc-idle-delay .2)
       (spacemacs/register-repl 'fsharp-mode 'fsharp-show-subshell "F#")
       (add-hook 'fsharp-mode-hook #'spacemacs//fsharp-setup-backend))
@@ -63,7 +84,7 @@
 
       (spacemacs/declare-prefix-for-mode 'fsharp-mode "ms" "repl")
       (spacemacs/declare-prefix-for-mode 'fsharp-mode "mc" "compile")
-      (unless (eq (spacemacs//fsharp-backend) 'lsp)
+      (when (eq (spacemacs//fsharp-backend) 'eglot)
         (spacemacs/declare-prefix-for-mode 'fsharp-mode "mg" "goto"))
 
       (spacemacs/set-leader-keys-for-major-mode 'fsharp-mode

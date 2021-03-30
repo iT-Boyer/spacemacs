@@ -1,13 +1,25 @@
 ;;; packages.el --- Go Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2020 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
-;;; License: GPLv3
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 (defconst go-packages
   '(
@@ -77,7 +89,7 @@
     :init (spacemacs/set-leader-keys-for-major-mode 'go-mode
             "rs" 'go-fill-struct)))
 
-(defun go/init-go-gen-test()
+(defun go/init-go-gen-test ()
   (use-package go-gen-test
     :defer t
     :init
@@ -108,13 +120,13 @@
         "fr" 'go-guru-referrers
         "fs" 'go-guru-callstack))))
 
-(defun go/init-go-impl()
+(defun go/init-go-impl ()
   (use-package go-impl
     :defer t
     :init (spacemacs/set-leader-keys-for-major-mode 'go-mode
             "ri" 'go-impl)))
 
-(defun go/init-go-mode()
+(defun go/init-go-mode ()
   (use-package go-mode
     :defer t
     :init
